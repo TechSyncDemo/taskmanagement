@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { DivideIcon as LucideIcon, Home, CheckSquare, Users, BarChart3, Settings, LogOut } from 'lucide-react';
+import { DivideIcon, Home, CheckSquare, Users, BarChart3, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface SidebarItemProps {
   to: string;
-  icon: LucideIcon;
+  icon: typeof DivideIcon;
   label: string;
   activeRoute: string;
 }
@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
 
       <div className="flex flex-col flex-1 px-4 py-2 overflow-y-auto">
         <SidebarItem to="/dashboard" icon={Home} label="Dashboard" activeRoute={location.pathname} />
-        <SidebarItem to="/tasks" icon={CheckSquare} label="Tasks" activeRoute={location.pathname} />
+        {/* <SidebarItem to="/tasks" icon={CheckSquare} label="Tasks" activeRoute={location.pathname} /> */}
         {isAdmin && (
           <SidebarItem to="/users" icon={Users} label="Users" activeRoute={location.pathname} />
         )}
