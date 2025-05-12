@@ -12,9 +12,25 @@ export const Users: React.FC = () => {
   const isAdmin = authState.user?.role === 'admin';
   
   useEffect(() => {
-    if (isAdmin) {
-      fetchUsers();
-    }
+    let isMounted = true;
+
+    const fetchData = async () => {
+      try {
+        if (isAdmin) {
+          await fetchUsers();
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error('Failed to fetch users:', error);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [fetchUsers, isAdmin]);
   
   // Redirect non-admin users
