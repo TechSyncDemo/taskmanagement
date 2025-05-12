@@ -54,7 +54,7 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
 
 interface TaskContextType {
   state: TaskState;
-  fetchTasks: () => Promise<void>;
+  fetchTasks: () => void; // Changed from Promise<void>
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -62,17 +62,59 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(taskReducer, initialState);
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      const response = await fetch('/api/tasks');
-      const data = await response.json();
-      dispatch({ type: 'SET_TASKS', payload: data });
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Failed to fetch tasks' });
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
+  const fetchTasks = useCallback(() => {
+    let isSubscribed = true;
+
+    const fetchData = async () => {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        
+        const now = new Date().toISOString();
+        const mockTasks: Task[] = [
+          {
+            id: '1',
+            title: 'Complete Project Setup',
+            description: 'Initial project configuration',
+            status: 'completed',
+            priority: 'high',
+            assignedTo: '1',
+            assignedBy: '1',
+            dueDate: now,
+            createdAt: now,
+            updatedAt: now
+          },
+          {
+            id: '2',
+            title: 'Design Review',
+            description: 'Review new design proposals',
+            status: 'in-progress',
+            priority: 'medium',
+            assignedTo: '2',
+            assignedBy: '1',
+            dueDate: now,
+            createdAt: now,
+            updatedAt: now
+          }
+        ];
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (isSubscribed) {
+          dispatch({ type: 'SET_TASKS', payload: mockTasks });
+        }
+      } catch (error) {
+        if (isSubscribed) {
+          dispatch({ type: 'SET_ERROR', payload: error instanceof Error ? error.message : 'Failed to fetch tasks' });
+        }
+      } finally {
+        if (isSubscribed) {
+          dispatch({ type: 'SET_LOADING', payload: false });
+        }
+      }
+    };
+
+    fetchData();
   }, []);
 
   const value = useMemo(() => ({

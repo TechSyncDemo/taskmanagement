@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, ReactNode } from 'react';
 import { UserState, User } from '../types';
 
 type UserAction =
@@ -44,12 +44,15 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(userReducer, initialState);
 
-  // Mock function - in a real app, this would call an API
-  const fetchUsers = () => {
+  const fetchUsers = useCallback(() => {
+    let isSubscribed = true;
+    
     dispatch({ type: 'FETCH_USERS_REQUEST' });
 
     // Simulate API call
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      if (!isSubscribed) return;
+      
       const mockUsers: User[] = [
         {
           id: '1',
@@ -90,10 +93,20 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ];
       dispatch({ type: 'FETCH_USERS_SUCCESS', payload: mockUsers });
     }, 1000);
-  };
+
+    return () => {
+      isSubscribed = false;
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const value = useMemo(() => ({
+    state,
+    fetchUsers
+  }), [state, fetchUsers]);
 
   return (
-    <UserContext.Provider value={{ state, fetchUsers }}>
+    <UserContext.Provider value={value}>
       {children}
     </UserContext.Provider>
   );
