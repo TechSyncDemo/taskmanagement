@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { OverviewCard } from '../components/dashboard/OverviewCard';
 import { TaskStatusChart } from '../components/dashboard/TaskStatusChart';
@@ -13,13 +13,20 @@ export const Dashboard: React.FC = () => {
   const { state: taskState, fetchTasks } = useTask();
   const { state: userState, fetchUsers } = useUser();
   const { state: authState } = useAuth();
+  const mountedRef = useRef(true);
   
   const isAdmin = authState.user?.role === 'admin';
   
   useEffect(() => {
-    fetchTasks();
-    fetchUsers();
-  }, [fetchTasks, fetchUsers]);
+    if (mountedRef.current) {
+      fetchTasks();
+      fetchUsers();
+    }
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
   
   const { tasks } = taskState;
   const { users } = userState;

@@ -3,9 +3,14 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: './', // This ensures assets are loaded with relative paths
+  base: './',
   build: {
     assetsDir: 'assets',
     sourcemap: true,
-  }
+  },
+  server: {
+    middlewareMode: true,
+    open: true
+  },
+  preview: {}
 });
