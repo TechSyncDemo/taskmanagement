@@ -4,13 +4,14 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: './',
-  build: {
-    assetsDir: 'assets',
-    sourcemap: true,
-  },
   server: {
-    middlewareMode: true,
-    open: true
+    port: 5173,
+    host: true,
+    open: true,
+    strictPort: true
   },
-  preview: {}
+  preview: {
+    port: 4173,
+    host: true
+  }
 });

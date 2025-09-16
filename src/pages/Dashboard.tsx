@@ -18,15 +18,25 @@ export const Dashboard: React.FC = () => {
   const isAdmin = authState.user?.role === 'admin';
   
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          fetchTasks(),
+          isAdmin ? fetchUsers() : Promise.resolve()
+        ]);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
     if (mountedRef.current) {
-      fetchTasks();
-      fetchUsers();
+      fetchData();
     }
 
     return () => {
       mountedRef.current = false;
     };
-  }, []);
+  }, [fetchTasks, fetchUsers, isAdmin]);
   
   const { tasks } = taskState;
   const { users } = userState;
